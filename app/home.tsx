@@ -8,9 +8,11 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useAuthStore } from "@/store/auth";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user } = useAuthStore();
 
   const handleLogout = () => {
     router.replace("/login");
@@ -18,7 +20,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
@@ -28,7 +30,9 @@ export default function HomeScreen() {
             <Text style={styles.title}>Dashboard</Text>
           </View>
           <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
-            <Text style={styles.profileInitial}>A</Text>
+            <Text style={styles.profileInitial}>
+              {user?.first_name?.charAt(0)}
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -45,14 +49,16 @@ export default function HomeScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
-          
+
           <TouchableOpacity style={styles.actionCard}>
             <View style={styles.actionIcon}>
               <Text style={styles.actionIconText}>📊</Text>
             </View>
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>Analytics</Text>
-              <Text style={styles.actionDescription}>View performance metrics</Text>
+              <Text style={styles.actionDescription}>
+                View performance metrics
+              </Text>
             </View>
             <Text style={styles.actionArrow}>›</Text>
           </TouchableOpacity>
@@ -82,11 +88,13 @@ export default function HomeScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
-          
+
           <View style={styles.activityItem}>
             <View style={styles.activityDot} />
             <View style={styles.activityContent}>
-              <Text style={styles.activityText}>Project completed successfully</Text>
+              <Text style={styles.activityText}>
+                Project completed successfully
+              </Text>
               <Text style={styles.activityTime}>2 hours ago</Text>
             </View>
           </View>

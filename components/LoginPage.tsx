@@ -11,25 +11,23 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { supabase } from "@/utils/supabase";
+import { authService } from "@/service/auth";
 
 export function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    supabase.auth
-      .signInWithPassword({
-        email: email,
-        password: password,
-      })
-      .then(({ error }) => {
-        if (error) {
-          console.error("Login error:", error);
-        } else {
-          router.replace("/home");
-        }
-      });
+  const handleLogin = async () => {
+    const user = {
+      email: email,
+      password: password,
+    };
+    try {
+      await authService.login(user);
+    } catch (error) {
+      console.error("Error logging in:", error);
+    }
   };
 
   return (
