@@ -1,4 +1,4 @@
-# Welcome to your Expo app 👋
+# Scopes (Expo + Supabase)
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
@@ -35,21 +35,12 @@ npm run reset-project
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-## Learn more
+## Project Docs
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# scopes-native
-# scopes-native
-# scopes-native
-# scopes-native
-# scopes-native
+See `docs/` for detailed guides:
+- `docs/setup.md` – local setup and scripts
+- `docs/env.md` – environment variables
+- `docs/auth-session.md` – auth flow and session persistence
+- `docs/database.md` – schema, migrations, and seeding
+- `docs/deployment.md` – EAS build and store submission
+- `docs/architecture.md` – structure and flow

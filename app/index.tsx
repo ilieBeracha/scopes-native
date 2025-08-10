@@ -17,8 +17,9 @@ export default function Index() {
       setSession(session ?? null);
       setUser(session?.user ?? null);
       if (session) {
-        router.replace("/home");
+        router.replace("/(protected)/home");
       }
+      console.log("session", session);
     });
 
     const { data: subscription } = supabase.auth.onAuthStateChange(
@@ -27,8 +28,9 @@ export default function Index() {
         setSession(session ?? null);
         setUser(session?.user ?? null);
         if (session) {
-          router.replace("/home");
+          router.replace("/(protected)/home");
         }
+        console.log("session", session);
       }
     );
 

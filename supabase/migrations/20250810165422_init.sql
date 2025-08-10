@@ -15,10 +15,36 @@ CREATE TABLE public.permissions (
   resource text NOT NULL,
   action text NOT NULL,
   description text,
-  
   created_at timestamp with time zone DEFAULT now() NOT NULL,
+  updated_at timestamp with time zone DEFAULT now() NOT NULL,
   UNIQUE(resource, action)
 );
+
+-- Indexes for permissions lookups
+CREATE INDEX idx_permissions_resource ON public.permissions(resource);
+CREATE INDEX idx_permissions_action ON public.permissions(action);
+
+-- updated_at trigger used by permissions
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS set_permissions_updated_at ON public.permissions;
+CREATE TRIGGER set_permissions_updated_at
+BEFORE UPDATE ON public.permissions
+FOR EACH ROW
+EXECUTE FUNCTION public.set_updated_at();
+
+-- RLS for permissions: allow read for authenticated users
+ALTER TABLE public.permissions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow read for authenticated" ON public.permissions;
+CREATE POLICY "Allow read for authenticated"
+ON public.permissions FOR SELECT
+USING (auth.role() = 'authenticated');
 
 CREATE TABLE public.profiles_preferences (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -64,3 +90,4 @@ CREATE TRIGGER on_auth_user_created
 AFTER INSERT ON auth.users
 FOR EACH ROW
 EXECUTE FUNCTION public.handle_new_user();
+
