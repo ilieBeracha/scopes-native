@@ -1,18 +1,19 @@
+import { useAuthStore } from "@/store/auth";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { useAuthStore } from "@/store/auth";
+import { useStore } from "zustand";
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user } = useStore(useAuthStore);
 
   const handleLogout = () => {
     router.replace("/login");
@@ -31,7 +32,7 @@ export default function HomeScreen() {
           </View>
           <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
             <Text style={styles.profileInitial}>
-              {user?.first_name?.charAt(0)}
+              {user?.user_metadata?.first_name?.charAt(0)}
             </Text>
           </TouchableOpacity>
         </View>
