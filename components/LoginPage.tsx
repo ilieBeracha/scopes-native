@@ -10,21 +10,20 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { supabase } from "@/utils/supabase";
-import { authService } from "@/service/auth";
+import { useAuthStore } from "@/store/auth";
 
 export function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const { login } = useAuthStore();
   const handleLogin = async () => {
-    const user = {
-      email: email,
-      password: password,
-    };
     try {
-      await authService.login(user);
+      await login({
+        email: email,
+        password: password,
+      });
     } catch (error) {
       console.error("Error logging in:", error);
     }

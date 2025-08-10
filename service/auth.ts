@@ -5,7 +5,10 @@ import axios from "axios";
 async function registerCommander(user: RegisterUserData) {
   user.user_role = "commander";
   try {
-    const res = await axios.post(`auth/signup/commander`, user);
+    const res = await axios.post(
+      `${process.env.EXPO_PUBLIC_API_URL}/auth/signup/commander`,
+      user
+    );
     return res.data;
   } catch (error: any) {
     console.error("Error registering commander:", error.message);
@@ -15,7 +18,10 @@ async function registerCommander(user: RegisterUserData) {
 async function registerSquadCommander(user: RegisterUserData) {
   user.user_role = "squad-commander";
   try {
-    const res = await axios.post(`auth/signup/squad-commander`, user);
+    const res = await axios.post(
+      `${process.env.EXPO_PUBLIC_API_URL}/auth/signup/squad-commander`,
+      user
+    );
     return res.data;
   } catch (error: any) {
     console.error("Error registering squad commander:", error.message);
@@ -25,7 +31,10 @@ async function registerSquadCommander(user: RegisterUserData) {
 async function registerSoldier(user: RegisterUserData) {
   user.user_role = "soldier";
   try {
-    const res = await axios.post(`auth/signup/soldier`, user);
+    const res = await axios.post(
+      `${process.env.EXPO_PUBLIC_API_URL}/auth/signup/soldier`,
+      user
+    );
     return res.data;
   } catch (error: any) {
     console.error("Error registering soldier:", error.message);
@@ -34,6 +43,7 @@ async function registerSoldier(user: RegisterUserData) {
 }
 
 async function login(user: LoginUserData) {
+  console.log("user", user);
   if (user.email && !user.password) {
     const { data, error } = await supabase.auth.signInWithOtp({
       email: user.email,
@@ -50,8 +60,12 @@ async function login(user: LoginUserData) {
   }
 
   try {
-    const res = await axios.post(`auth/login`, user);
-    return res.data;
+    const res = await axios.post(
+      `${process.env.EXPO_PUBLIC_API_URL}/auth/login`,
+      user
+    );
+    console.log("res", res.data);
+    return res.data.user;
   } catch (error: any) {
     console.error("Error logging in:", error.message);
     throw new Error("Failed to login");
