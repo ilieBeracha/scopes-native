@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useStore } from "zustand"; 
+import { useStore } from "zustand";
 
 export function LoginPage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export function LoginPage() {
   const handleLogin = async () => {
     try {
       await loginProfile({ email, password });
-      router.replace("/home");
+      router.replace("/(protected)/home");
     } catch (error) {
       console.error("Error logging in:", error);
     }
