@@ -9,13 +9,14 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useStore } from "zustand";
+import { Toast } from "./Toast";
+import { useToast } from "@/hooks/useToast";
 
 export function RegisterPage() {
   const router = useRouter();
@@ -23,159 +24,221 @@ export function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
-  const [mfaEnabled, setMfaEnabled] = useState(false);
+  const { toastVisible, toastConfig, showToast, hideToast } = useToast();
 
   const { registerProfile } = useStore(useAuthStore);
 
   const handleRegister = async () => {
-    const user: RegisterUserData = {
-      email,
-      password,
-      avatar_url: avatarUrl,
-      first_name: firstName,
-      last_name: lastName,
-      mfa_enabled: mfaEnabled,
-    };
+    if (!firstName.trim()) {
+      showToast({
+        message: "Please enter your first name",
+        type: "error",
+      });
+      return;
+    }
+    if (!lastName.trim()) {
+      showToast({
+        message: "Please enter your last name",
+        type: "error",
+      });
+      return;
+    }
+    if (!email.trim()) {
+      showToast({
+        message: "Please enter your email",
+        type: "error",
+      });
+      return;
+    }
+    if (!password || password.length < 6) {
+      showToast({
+        message: "Password must be at least 6 characters",
+        type: "error",
+      });
+      return;
+    }
 
-    await registerProfile(user);
-    router.replace("/home");
+    try {
+      const user: RegisterUserData = {
+        email: email.trim(),
+        password,
+        avatar_url: "",
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
+        mfa_enabled: false,
+      };
+
+      await registerProfile(user);
+      showToast({
+        message: "Account created successfully!",
+        type: "success",
+        duration: 2000,
+      });
+      setTimeout(() => {
+        router.replace("/(protected)/home");
+      }, 500);
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      
+      let errorMessage = "Failed to create account";
+      
+      if (error?.message?.includes("already registered")) {
+        errorMessage = "This email is already registered";
+      } else if (error?.message?.includes("Invalid email")) {
+        errorMessage = "Please enter a valid email address";
+      } else if (error?.message?.includes("Password")) {
+        errorMessage = "Password is too weak";
+      } else if (error?.message?.includes("Network")) {
+        errorMessage = "Network error. Check your connection";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      showToast({
+        message: errorMessage,
+        type: "error",
+      });
+    }
   };
 
   return (
     <View style={styles.container}>
-      <LinearGradient colors={["#0a0a0a", "#000000"]} style={styles.gradient}>
-        <SafeAreaView style={styles.safeArea}>
-          <KeyboardAvoidingView
-            style={styles.keyboardView}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+      <Toast
+        visible={toastVisible}
+        message={toastConfig.message}
+        type={toastConfig.type}
+        duration={toastConfig.duration}
+        onHide={hideToast}
+      />
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+          style={styles.keyboardView}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
-            <ScrollView
-              contentContainerStyle={styles.scrollContent}
-              showsVerticalScrollIndicator={false}
-            >
-              <View style={styles.content}>
-                <View style={styles.scopeIcon}>
-                  <LinearGradient
-                    colors={["#ff6b4a", "#ff8866"]}
-                    style={styles.iconGradient}
-                  >
-                    <View style={styles.scopeInner}>
-                      <View style={styles.scopeDot} />
-                      <View style={styles.scopeCrosshair} />
-                      <View style={styles.scopeCrosshairH} />
-                    </View>
-                  </LinearGradient>
-                </View>
-                <View style={styles.header}>
-                  <Text style={styles.title}>Create Account</Text>
-                  <Text style={styles.subtitle}>Sign up to get started</Text>
-                </View>
+            <View style={styles.content}>
+              <TouchableOpacity 
+                style={styles.backButton}
+                onPress={() => router.back()}
+              >
+                <Text style={styles.backText}>←</Text>
+              </TouchableOpacity>
 
-                <View style={styles.form}>
-                  <View style={styles.inputWrapper}>
+              <View style={styles.header}>
+                <Text style={styles.title}>Create Account</Text>
+                <Text style={styles.subtitle}>
+                  Sign up to get started with your account
+                </Text>
+              </View>
+
+              <View style={styles.form}>
+                <View style={styles.inputRow}>
+                  <View style={[styles.inputContainer, styles.halfInput]}>
                     <TextInput
                       style={styles.input}
-                      placeholder="First Name"
-                      placeholderTextColor="#636366"
+                      placeholder="First name"
+                      placeholderTextColor="#666666"
                       value={firstName}
                       onChangeText={setFirstName}
                       autoCorrect={false}
                     />
                   </View>
-
-                  <View style={styles.inputWrapper}>
+                  <View style={[styles.inputContainer, styles.halfInput]}>
                     <TextInput
                       style={styles.input}
-                      placeholder="Last Name"
-                      placeholderTextColor="#636366"
+                      placeholder="Last name"
+                      placeholderTextColor="#666666"
                       value={lastName}
                       onChangeText={setLastName}
                       autoCorrect={false}
                     />
                   </View>
+                </View>
 
-                  <View style={styles.inputWrapper}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Email"
-                      placeholderTextColor="#636366"
-                      value={email}
-                      onChangeText={setEmail}
-                      autoCapitalize="none"
-                      keyboardType="email-address"
-                      autoCorrect={false}
-                    />
-                  </View>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email address"
+                    placeholderTextColor="#666666"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    autoCorrect={false}
+                  />
+                </View>
 
-                  <View style={styles.inputWrapper}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Password"
-                      placeholderTextColor="#636366"
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                  </View>
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    placeholderTextColor="#666666"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
 
-                  <View style={styles.inputWrapper}>
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Avatar URL (optional)"
-                      placeholderTextColor="#636366"
-                      value={avatarUrl}
-                      onChangeText={setAvatarUrl}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                    />
-                  </View>
-
-                  <View style={styles.switchRow}>
-                    <Text style={styles.switchLabel}>Enable MFA</Text>
-                    <Switch
-                      value={mfaEnabled}
-                      onValueChange={setMfaEnabled}
-                      thumbColor={mfaEnabled ? "#ff6b4a" : undefined}
-                      trackColor={{ true: "#ff8866", false: "#767577" }}
-                    />
-                  </View>
-
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={handleRegister}
-                    activeOpacity={0.9}
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleRegister}
+                  activeOpacity={0.8}
+                >
+                  <LinearGradient
+                    colors={["#ff6b4a", "#ff8866"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.buttonGradient}
                   >
-                    <LinearGradient
-                      colors={["#ff6b4a", "#ff8866"]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={styles.buttonGradient}
-                    >
-                      <Text style={styles.buttonText}>Sign Up</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
+                    <Text style={styles.buttonText}>Sign Up</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
 
-                  <Text style={styles.terms}>
-                    By signing up, you agree to our Terms & Privacy Policy
-                  </Text>
+                <View style={styles.divider}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>or</Text>
+                  <View style={styles.dividerLine} />
                 </View>
 
-                <View style={styles.footer}>
-                  <Text style={styles.footerText}>
-                    Already have an account?{" "}
-                  </Text>
-                  <TouchableOpacity onPress={() => router.push("/login")}>
-                    <Text style={styles.linkText}>Sign In</Text>
+                <View style={styles.socialButtons}>
+                  <TouchableOpacity style={styles.socialButton} activeOpacity={0.8}>
+                    <View style={styles.socialIcon}>
+                      <Text style={styles.googleIcon}>G</Text>
+                    </View>
+                    <Text style={styles.socialText}>Continue with Google</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.socialButton} activeOpacity={0.8}>
+                    <View style={[styles.socialIcon, styles.appleIcon]}>
+                      <Text style={styles.appleIconText}></Text>
+                    </View>
+                    <Text style={styles.socialText}>Continue with Apple</Text>
                   </TouchableOpacity>
                 </View>
+
+                <Text style={styles.terms}>
+                  By signing up, you agree to our{" "}
+                  <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
+                  <Text style={styles.termsLink}>Privacy Policy</Text>
+                </Text>
               </View>
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </SafeAreaView>
-      </LinearGradient>
+
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Already have an account? </Text>
+                <TouchableOpacity onPress={() => router.push("/login")}>
+                  <Text style={styles.footerLink}>Sign In</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 }
@@ -183,9 +246,7 @@ export function RegisterPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  gradient: {
-    flex: 1,
+    backgroundColor: "#000000",
   },
   safeArea: {
     flex: 1,
@@ -193,94 +254,74 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
-  scopeIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 32,
-    overflow: "hidden",
-    alignSelf: "center",
+  scrollContent: {
+    flexGrow: 1,
+    minHeight: "100%",
   },
-  iconGradient: {
+  content: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 40,
+    zIndex: 1,
   },
-  scopeInner: {
+  backButton: {
     width: 40,
     height: 40,
     justifyContent: "center",
-    alignItems: "center",
+    marginBottom: 24,
   },
-  scopeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#ffffff",
-    position: "absolute",
-  },
-  scopeCrosshair: {
-    width: 26,
-    height: 1.5,
-    backgroundColor: "#ffffff",
-    position: "absolute",
-  },
-  scopeCrosshairH: {
-    width: 1.5,
-    height: 26,
-    backgroundColor: "#ffffff",
-    position: "absolute",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-  },
-  content: {
-    paddingHorizontal: 40,
-    paddingVertical: 40,
+  backText: {
+    color: "#ffffff",
+    fontSize: 24,
+    fontWeight: "300",
   },
   header: {
-    marginBottom: 48,
+    marginBottom: 32,
   },
   title: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: "700",
     color: "#ffffff",
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 17,
-    color: "rgba(255,255,255,0.6)",
-    fontWeight: "400",
+    fontSize: 16,
+    color: "#888888",
+    lineHeight: 22,
   },
   form: {
-    marginBottom: 32,
+    flex: 1,
   },
-  inputWrapper: {
+  inputRow: {
+    flexDirection: "row",
+    gap: 12,
     marginBottom: 16,
   },
+  inputContainer: {
+    backgroundColor: "rgba(255,255,255,0.02)",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.05)",
+    marginBottom: 16,
+  },
+  halfInput: {
+    flex: 1,
+    marginBottom: 0,
+  },
   input: {
-    fontSize: 17,
+    fontSize: 16,
+    paddingHorizontal: 16,
     paddingVertical: 16,
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(255,255,255,0.2)",
     color: "#ffffff",
   },
   button: {
-    height: 56,
-    borderRadius: 28,
+    height: 54,
+    borderRadius: 12,
     overflow: "hidden",
-    marginTop: 24,
-    marginBottom: 16,
-    shadowColor: "#ff6b4a",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
+    marginTop: 8,
+    marginBottom: 24,
   },
   buttonGradient: {
     flex: 1,
@@ -289,39 +330,87 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#ffffff",
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "600",
     letterSpacing: 0.5,
+  },
+  divider: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.05)",
+  },
+  dividerText: {
+    color: "#666666",
+    fontSize: 14,
+    marginHorizontal: 16,
+  },
+  socialButtons: {
+    gap: 12,
+    marginBottom: 24,
+  },
+  socialButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.02)",
+    borderRadius: 12,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.05)",
+  },
+  socialIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  googleIcon: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+  appleIcon: {
+    backgroundColor: "#ffffff",
+    borderRadius: 3,
+  },
+  appleIconText: {
+    fontSize: 16,
+    color: "#000000",
+  },
+  socialText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "500",
   },
   terms: {
     textAlign: "center",
     fontSize: 13,
-    color: "rgba(255,255,255,0.5)",
-    marginTop: 8,
+    color: "#666666",
     lineHeight: 18,
+    marginBottom: 32,
+  },
+  termsLink: {
+    color: "#888888",
+    textDecorationLine: "underline",
   },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 32,
+    marginTop: "auto",
   },
   footerText: {
-    color: "rgba(255,255,255,0.6)",
+    color: "#888888",
     fontSize: 15,
   },
-  linkText: {
+  footerLink: {
     color: "#ff6b4a",
     fontSize: 15,
-    fontWeight: "500",
-  },
-  switchRow: {
-    marginTop: 8,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  switchLabel: {
-    color: "#ffffff",
-    fontSize: 16,
+    fontWeight: "600",
   },
 });

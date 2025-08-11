@@ -1,4 +1,4 @@
-import { LandingPage } from "@/components/LandingPage";
+import { UnifiedAuth } from "@/components/UnifiedAuth";
 import { supabase } from "@/lib/supabase";
 import { useAuthStore } from "@/store/auth";
 import { useRouter } from "expo-router";
@@ -40,5 +40,5 @@ export default function Index() {
     };
   }, [router, setSession, setUser]);
 
-  return <LandingPage />;
+  return <UnifiedAuth />;
 }

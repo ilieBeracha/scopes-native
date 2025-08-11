@@ -23,13 +23,56 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack initialRouteName="index">
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="register" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(protected)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+      <Stack 
+        initialRouteName="index"
+        screenOptions={{
+          animation: "none",
+        }}
+      >
+        <Stack.Screen 
+          name="index" 
+          options={{ 
+            headerShown: false,
+            animation: "none",
+          }} 
+        />
+        <Stack.Screen 
+          name="login" 
+          options={{ 
+            headerShown: false,
+            gestureEnabled: false,
+            animation: "none",
+          }} 
+        />
+        <Stack.Screen 
+          name="register" 
+          options={{ 
+            headerShown: false,
+            gestureEnabled: false,
+            animation: "none",
+          }} 
+        />
+        <Stack.Screen 
+          name="(tabs)" 
+          options={{ 
+            headerShown: false,
+            animation: "none",
+          }} 
+        />
+        <Stack.Screen 
+          name="(protected)" 
+          options={{ 
+            headerShown: false,
+            gestureEnabled: false,
+            animation: "none",
+          }} 
+        />
+        <Stack.Screen 
+          name="+not-found" 
+          options={{
+            animation: "none",
+          }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

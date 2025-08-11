@@ -50,7 +50,25 @@ export interface LoginProfileResponse {
   session: Session;
 }
 
+export async function checkEmailExists(email: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("email")
+      .eq("email", email)
+      .single();
+    if (error) {
+      console.error("Error checking email exists:", error);
+      throw error;
+    }
+    return !!data;
+  } catch {
+    return false;
+  }
+}
+
 export const authService = {
   registerProfile,
   loginProfile,
+  checkEmailExists,
 };

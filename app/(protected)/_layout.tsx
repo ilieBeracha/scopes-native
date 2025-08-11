@@ -44,8 +44,22 @@ export default function ProtectedLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack initialRouteName="home" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="home" options={{ headerShown: false }} />
+      <Stack 
+        initialRouteName="home" 
+        screenOptions={{ 
+          headerShown: false,
+          gestureEnabled: false,
+          animation: "none",
+        }}
+      >
+        <Stack.Screen 
+          name="home" 
+          options={{ 
+            headerShown: false,
+            gestureEnabled: false,
+            animation: "none",
+          }} 
+        />
       </Stack>
     </ThemeProvider>
   );

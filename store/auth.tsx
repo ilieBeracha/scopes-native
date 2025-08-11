@@ -1,4 +1,4 @@
-import { authService } from "@/service/auth";
+import { authService, checkEmailExists } from "@/service/auth";
 import { LoginUserData, RegisterUserData } from "@/types/service/auth";
 import { Session, User } from "@supabase/supabase-js";
 import { create } from "zustand";
@@ -10,6 +10,7 @@ interface AuthStore {
   setSession: (session: Session | null) => void;
   registerProfile: (user: RegisterUserData) => Promise<void>;
   loginProfile: (p: { email: string; password: string }) => Promise<void>;
+  checkEmailExists: (email: string) => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -43,5 +44,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       console.error("Error details:", JSON.stringify(error, null, 2));
       throw error;
     }
+  },
+
+  checkEmailExists: async (email: string) => {
+    const response = await checkEmailExists(email);
+    return response;
   },
 }));

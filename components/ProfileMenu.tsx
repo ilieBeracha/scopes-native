@@ -15,7 +15,7 @@ import { useStore } from "zustand";
 
 export function ProfileMenu() {
   const router = useRouter();
-  const { user } = useStore(useAuthStore);
+  const { user, setUser, setSession } = useStore(useAuthStore);
   const [menuVisible, setMenuVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
@@ -57,6 +57,8 @@ export function ProfileMenu() {
   const handleLogout = async () => {
     closeMenu();
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
     router.replace("/");
   };
 
